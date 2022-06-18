@@ -1,0 +1,325 @@
+MICROSOFT AZURE DATA SCIENTIST CHALLENGE NOTES 
+
+Explore and analyze data with Python 
+
+	 the role of a data scientist primarily involves exploring and analyzing data. 
+	 
+	 Testing hypotheses
+		
+		Data exploration and analysis is typically an iterative process, in which the data scientist takes a sample of data and performs the following kinds of task to analyze it and test hypotheses:
+			Clean data to handle errors, missing values, and other issues.
+			Apply statistical techniques to better understand the data, and how the sample might be expected to represent the real-world population of data, allowing for random variation.
+			Visualize data to determine relationships between variables, and in the case of a machine learning project, identify features that are potentially predictive of the label.
+			Revise the hypothesis and repeat the process.
+			
+	print('Average study hours: {:.2f}\nAverage grade: {:.2f}'.format(avg_study, avg_grade)) 
+	
+	You can use the DataFrame's loc method to retrieve data for a specific index value, like this.
+		df_students.loc[5]
+		
+	You can use the iloc method to find rows based on their ordinal position in the DataFrame (regardless of the index):
+	
+	Handling missing values
+	
+		df_students.isnull()
+		df_students.StudyHours = df_students.StudyHours.fillna(df_students.StudyHours.mean())
+		df_students = df_students.dropna(axis=0, how='any')
+		
+	Explore data in the DataFrame
+	
+		you can use the groupby method to group the student data into groups based on the Pass column you added previously, and count the number of names in each group - in other words, you can
+		determine how many students passed and failed.
+		
+		print(df_students.groupby(df_students.Pass).Name.count())
+		
+	Visualize 
+
+		A figure can contain multiple subplots, each on its own axis.
+
+		For example, the following code creates a figure with two subplots - one is a bar chart showing student grades, and the other is a pie chart comparing the number of passing grades to non-passing grades.
+			
+			# Create a figure for 2 subplots (1 row, 2 columns)
+			fig, ax = plt.subplots(1, 2, figsize = (10,4))
+
+			# Create a bar plot of name vs grade on the first axis
+			ax[0].bar(x=df_students.Name, height=df_students.Grade, color='orange')
+			ax[0].set_title('Grades')
+			ax[0].set_xticklabels(df_students.Name, rotation=90)
+
+			# Create a pie chart of pass counts on the second axis
+			pass_counts = df_students['Pass'].value_counts()
+			ax[1].pie(pass_counts, labels=pass_counts)
+			ax[1].set_title('Passing Grades')
+			ax[1].legend(pass_counts.keys().tolist())
+
+			# Add a title to the Figure
+			fig.suptitle('Student Data')
+
+			# Show the figure
+			fig.show()
+			
+		The mean: A simple average based on adding together all of the values in the sample set, and then dividing the total by the number of samples.
+		The median: The value in the middle of the range of all of the sample values.
+		The mode: The most commonly occuring value in the sample set
+		
+	Box Plot + Histrogram
+		import pandas as pd
+		from matplotlib import pyplot as plt
+
+		# Load data from a text file
+		!wget https://raw.githubusercontent.com/MicrosoftDocs/mslearn-introduction-to-machine-learning/main/Data/ml-basics/grades.csv
+		df_students = pd.read_csv('grades.csv',delimiter=',',header='infer')
+
+		# Remove any rows with missing data
+		df_students = df_students.dropna(axis=0, how='any')
+
+		# Calculate who passed, assuming '60' is the grade needed to pass
+		passes  = pd.Series(df_students['Grade'] >= 60)
+
+		# Save who passed to the Pandas dataframe
+		df_students = pd.concat([df_students, passes.rename("Pass")], axis=1)
+
+
+		# Print the result out into this notebook
+		print(df_students)
+
+
+		# Create a function that we can re-use
+		def show_distribution(var_data):
+			'''
+			This function will make a distribution (graph) and display it
+			'''
+
+			# Get statistics
+			min_val = var_data.min()
+			max_val = var_data.max()
+			mean_val = var_data.mean()
+			med_val = var_data.median()
+			mod_val = var_data.mode()[0]
+
+			print('Minimum:{:.2f}\nMean:{:.2f}\nMedian:{:.2f}\nMode:{:.2f}\nMaximum:{:.2f}\n'.format(min_val,
+																									mean_val,
+																									med_val,
+																									mod_val,
+																									max_val))
+
+			# Create a figure for 2 subplots (2 rows, 1 column)
+			fig, ax = plt.subplots(2, 1, figsize = (10,4))
+
+			# Plot the histogram   
+			ax[0].hist(var_data)
+			ax[0].set_ylabel('Frequency')
+
+			# Add lines for the mean, median, and mode
+			ax[0].axvline(x=min_val, color = 'gray', linestyle='dashed', linewidth = 2)
+			ax[0].axvline(x=mean_val, color = 'cyan', linestyle='dashed', linewidth = 2)
+			ax[0].axvline(x=med_val, color = 'red', linestyle='dashed', linewidth = 2)
+			ax[0].axvline(x=mod_val, color = 'yellow', linestyle='dashed', linewidth = 2)
+			ax[0].axvline(x=max_val, color = 'gray', linestyle='dashed', linewidth = 2)
+
+			# Plot the boxplot   
+			ax[1].boxplot(var_data, vert=False)
+			ax[1].set_xlabel('Value')
+
+			# Add a title to the Figure
+			fig.suptitle('Data Distribution')
+
+			# Show the figure
+			fig.show()
+
+
+		show_distribution(df_students['Grade'])
+		
+		
+		Tip: You can also eliminate outliers at the upper end of the distribution by defining a threshold at a high percentile value - for example, you could use the quantile function to find the 0.99 percentile below which 99% of the data reside.
+		
+		A common technique when dealing with numeric data in different scales is to normalize the data so that the values retain their proportional distribution, but are measured on the same scale. To accomplish this, we'll use a technique called MinMax scaling that distributes the values proportionally on a scale of 0 to 1. You could write the code to apply this transformation; but the Scikit-Learn library provides a scaler to do it for you.
+
+		The correlation statistic is a value between -1 and 1 that indicates the strength of a relationship. Values above 0 indicate a positive correlation (high values of one variable tend to coincide with high values of the other), while values below 0 indicate a negative correlation (high values of one variable tend to coincide with low values of the other).
+		
+		Note: Data scientists often quote the maxim "correlation is not causation". In other words, as tempting as it might be, you shouldn't interpret the statistical correlation as explaining why one of the values is high. In the case of the student data, the statistics demonstrates that students with high grades tend to also have high amounts of study time; but this is not the same as proving that they achieved high grades because they studied a lot. The statistic could equally be used as evidence to support the nonsensical conclusion that the students studied a lot because their grades were going to be high.
+		
+		
+		
+Train and evaluate regression models
+
+	In machine learning, the goal of regression is to create a model that can predict a numeric, quantifiable value, such as a price, amount, size, or other scalar number.
+	
+	Regression works by establishing a relationship between variables in the data that represent characteristics—known as the features—of the thing being observed, and the variable we're trying to predict—known as the label. 
+	
+	One of the most common ways to measure the loss is to square the individual residuals, sum the squares, and calculate the mean. Squaring the residuals has the effect of basing the calculation on absolute values (ignoring whether the difference is negative or positive) and giving more weight to larger differences. This metric is called the Mean Squared Error.
+	
+	It's possible to do this by calculating the square root of the MSE, which produces a metric known, unsurprisingly, as the Root Mean Squared Error (RMSE).
+	
+	 R2 (R-Squared) (sometimes known as coefficient of determination) is the correlation between x and y squared. This produces a value between 0 and 1 that measures the amount of variance that can be explained by the model. Generally, the closer this value is to 1, the better the model predicts.
+	 
+	 There are lots of machine learning algorithms for supervised learning, and they can be broadly divided into two types:
+
+		Regression algorithms: Algorithms that predict a y value that is a numeric value, such as the price of a house or the number of sales transactions.
+		Classification algorithms: Algorithms that predict to which category, or class, an observation belongs. The y value in a classification model is a vector of probability values between 0 and 1, one for each class, indicating the probability of the observation belonging to each class.
+		
+			# Plot a histogram for each numeric feature
+			for col in numeric_features:
+				fig = plt.figure(figsize=(9, 6))
+				ax = fig.gca()
+				feature = bike_data[col]
+				feature.hist(bins=100, ax = ax)
+				ax.axvline(feature.mean(), color='magenta', linestyle='dashed', linewidth=2)
+				ax.axvline(feature.median(), color='cyan', linestyle='dashed', linewidth=2)
+				ax.set_title(col)
+			plt.show()
+			
+		Note: The distributions are not truly normal in the statistical sense, which would result in a smooth, symmetric "bell-curve" histogram with the mean and mode (the most common value) in the center; but they do generally indicate that most of the observations have a value somewhere near the middle.
+		
+		We've explored the distribution of the numeric values in the dataset, but what about the categorical features? These aren't continuous numbers on a scale, so we can't use histograms; but we can plot a bar chart showing the count of each discrete value for each category
+		
+		import numpy as np
+
+		# plot a bar plot for each categorical feature count
+		categorical_features = ['season','mnth','holiday','weekday','workingday','weathersit', 'day']
+
+		for col in categorical_features:
+			counts = bike_data[col].value_counts().sort_index()
+			fig = plt.figure(figsize=(9, 6))
+			ax = fig.gca()
+			counts.plot.bar(ax = ax, color='steelblue')
+			ax.set_title(col + ' counts')
+			ax.set_xlabel(col) 
+			ax.set_ylabel("Frequency")
+		plt.show()
+		
+		For the numeric features, we can create scatter plots that show the intersection of feature and label values. We can also calculate the correlation statistic to quantify the apparent relationship..
+		
+		for col in numeric_features:
+			fig = plt.figure(figsize=(9, 6))
+			ax = fig.gca()
+			feature = bike_data[col]
+			label = bike_data['rentals']
+			correlation = feature.corr(label)
+			plt.scatter(x=feature, y=label)
+			plt.xlabel(col)
+			plt.ylabel('Bike Rentals')
+			ax.set_title('rentals vs ' + col + '- correlation: ' + str(correlation))
+		plt.show()
+		
+		# plot a boxplot for the label by each categorical feature
+		for col in categorical_features:
+			fig = plt.figure(figsize=(9, 6))
+			ax = fig.gca()
+			bike_data.boxplot(column = 'rentals', by = col, ax = ax)
+			ax.set_title('Label by ' + col)
+			ax.set_ylabel("Bike Rentals")
+		plt.show()
+		
+		Hyperparameters are values that change the way that the model is fit during these loops. Learning rate, for example, is a hyperparameter that sets how much a model is adjusted during each training cycle. A high learning rate means a model can be trained faster, but if it’s too high the adjustments can be so large that the model is never ‘finely tuned’ and not optimal.
+		the term parameters refers to values that can be determined from data; values that you specify to affect the behavior of a training algorithm are more correctly referred to as hyperparameters.
+		
+		Note: The use of random values in the Gradient Boosting algorithm results in slightly different metrics each time. In this case, the best model produced by hyperparameter tuning is unlikely to be significantly better than one trained with the default hyperparameter values; but it's still useful to know about the hyperparameter tuning technique!
+		
+		Machine learning models work best with numeric features rather than text values, so you generally need to convert categorical features into numeric representations
+		
+		To apply these preprocessing transformations to the bike rental, we'll make use of a Scikit-Learn feature named pipelines. These enable us to define a set of preprocessing steps that end with an algorithm. You can then fit the entire pipeline to the data, so that the model encapsulates all of the preprocessing steps as well as the regression algorithm. This is useful, because when we want to use the model to predict values from new data, we need to apply the same transformations (based on the same statistical distributions and category encodings used with the training data).
+		
+		Note: The term pipeline is used extensively in machine learning, often to mean very different things! In this context, we're using it to refer to pipeline objects in Scikit-Learn, but you may see it used elsewhere to mean something else.
+		
+		# Train the model
+		from sklearn.compose import ColumnTransformer
+		from sklearn.pipeline import Pipeline
+		from sklearn.impute import SimpleImputer
+		from sklearn.preprocessing import StandardScaler, OneHotEncoder
+		from sklearn.linear_model import LinearRegression
+		import numpy as np
+
+		# Define preprocessing for numeric columns (scale them)
+		numeric_features = [6,7,8,9]
+		numeric_transformer = Pipeline(steps=[
+			('scaler', StandardScaler())])
+
+		# Define preprocessing for categorical features (encode them)
+		categorical_features = [0,1,2,3,4,5]
+		categorical_transformer = Pipeline(steps=[
+			('onehot', OneHotEncoder(handle_unknown='ignore'))])
+
+		# Combine preprocessing steps
+		preprocessor = ColumnTransformer(
+			transformers=[
+				('num', numeric_transformer, numeric_features),
+				('cat', categorical_transformer, categorical_features)])
+
+		# Create preprocessing and training pipeline
+		pipeline = Pipeline(steps=[('preprocessor', preprocessor),
+								   ('regressor', GradientBoostingRegressor())])
+
+
+		# fit the pipeline to train a linear regression model on the training set
+		model = pipeline.fit(X_train, (y_train))
+		print (model)
+		
+		Save the Data or Model
+		
+		import joblib
+
+		# Save the model as a pickle file
+		filename = './bike-share.pkl'
+		joblib.dump(model, filename)
+		
+	Classification is a form of machine learning in which you train a model to predict which category an item belongs to.
+	
+	Supervised machine learning techniques involve training a model to operate on a set of features and predict a label using a dataset that includes some already-known label values. You can think of this function like this, in which y represents the label we want to predict and X represents the vector of features the model uses to predict it.
+		
+	In addition to the training features and labels, we'll need to set a regularization parameter. This is used to counteract any bias in the sample, and help the model generalize well by avoiding overfitting the model to the training data.
+	
+	from sklearn. metrics import classification_report
+
+	print(classification_report(y_test, predictions))
+	
+	The classification report includes the following metrics for each class (0 and 1)
+
+		note that the header row may not line up with the values!
+		Precision: Of the predictions the model made for this class, what proportion were correct?
+		Recall: Out of all of the instances of this class in the test dataset, how many did the model identify?
+		F1-Score: An average metric that takes both precision and recall into account.
+		Support: How many instances of this class are there in the test dataset
+		
+		The precision and recall metrics are derived from four possible prediction outcomes:
+
+			True Positives: The predicted label and the actual label are both 1.
+			False Positives: The predicted label is 1, but the actual label is 0.
+			False Negatives: The predicted label is 0, but the actual label is 1.
+			True Negatives: The predicted label and the actual label are both 0.
+			
+		From these core values, you can calculate a range of other metrics that can help you evaluate the performance of the model. For example:
+
+		Accuracy: (TP+TN)/(TP+TN+FP+FN) - out all of the predictions, how many were correct?
+		Recall: TP/(TP+FN) - of all the cases that are positive, how many did the model identify?
+		Precision: TP/(TP+FP) - of all the cases that the model predicted to be positive, how many actually are positive
+		
+	It's also possible to create multiclass classification models, in which there are more than two possible classes.
+	
+		One vs Rest (OVR), in which a classifier is created for each possible class value, with a positive outcome for cases where the prediction is this class, and negative predictions for cases where the prediction is any other class
+		
+		One vs One (OVO), in which a classifier for each possible pair of classes is created.
+		
+	
+Clustering is the process of grouping objects with similar objects. 
+A major difference between clustering and classification models is that clustering is an ‘unsupervised’ method, where ‘training’ is done without labels. Instead, models identify examples that have a similar collection of features.
+Clustering is common and useful for exploring new data where patterns between data points, such as high-level categories, are not yet known. It's used in many fields that need to automatically label complex data, including analysis of social networks, brain connectivity, spam filtering, and so on.
+
+	Now, of course six-dimensional space is difficult to visualise in a three-dimensional world, or on a two-dimensional plot; so we'll take advantage of a mathematical technique called Principal Component Analysis (PCA) to analyze the relationships between the features and summarize each observation as coordinates for two principal components - in other words, we'll translate the six-dimensional feature values into two-dimensional coordinates.
+	
+	There are multiple algorithms you can use for clustering. One of the most commonly used algorithms is K-Means clustering that, in its simplest form, consists of the following steps:
+
+		The feature values are vectorized to define n-dimensional coordinates (where n is the number of features). In the flower example, we have two features (number of petals and number of leaves), so the feature vector has two coordinates that we can use to conceptually plot the data points in two-dimensional space.
+		You decide how many clusters you want to use to group the flowers, and call this value k. For example, to create three clusters, you would use a k value of 3. Then k points are plotted at random coordinates. These points will ultimately be the center points for each cluster, so they're referred to as centroids.
+		Each data point (in this case flower) is assigned to its nearest centroid.
+		Each centroid is moved to the center of the data points assigned to it based on the mean distance between the points.
+		After moving the centroid, the data points may now be closer to a different centroid, so the data points are reassigned to clusters based on the new closest centroid.
+		The centroid movement and cluster reallocation steps are repeated until the clusters become stable or a pre-determined maximum number of iterations is reached.
+		
+	Hierarchical clustering is another type of clustering algorithm in which clusters themselves belong to a larger group, which belong to even larger groups, and so on. The result is that data points can be clusters in differing degrees of precision: with a large number of very small and precise groups, or a small number of larger groups.
+
+	For example, if we apply clustering to the meanings of words, we may get a group containing adjectives specific to emotions (‘angry’, ‘happy’, and so on), which itself belongs to a group containing all human-related adjectives (‘happy’, ‘handsome’, ‘young’), and this belongs to an even higher group containing all adjectives (‘happy’, ‘green’, ‘handsome’, ‘hard’ etc.).
+	
+	One disadvantage of the K-means algorithm is that it is sensitive to the initialization of the centroids or the mean points. So, if a centroid is initialized to be a “far-off” point, it might just end up with no points associated with it, and at the same time, more than one cluster might end up linked with a single centroid. Similarly, more than one centroids might be initialized into the same cluster resulting in poor clustering. --- That's why we use K-means ++ 
+	
+	

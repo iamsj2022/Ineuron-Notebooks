@@ -1,0 +1,76 @@
+Sigmoid --- Logistic Regression 
+
+How Should Decide the Thresold ?
+
+Gradient descent
+
+Learning Rate
+
+Evaluation matrix for Logistic Regression ?
+
+	1. Confusion Matrix --> y--Y^ -- Accuracy = (TP+TN)/(TP+TN+FP+FN)
+	2. Recall(Sensitivity) --> Accuracy = (TP/TP+FN)
+	3. Precision --->> TP/TP+FP
+	4. F1 --> Mixture of Recall+Precision -->> 2(P*R)/(P+R)
+	5. Specifity
+	6. AUC
+			@ Build out of ROC
+			
+	7. ROC -- Curve b/w FP Rate and TP Rate  -- 
+			@ FPR :-- 1 -(TN/FP+TN)
+			
+	If any One ask how to decide THRESHOLD ?
+	Then tell them it depends on the Business understanding or Situation.
+	So we Should give an answer when we know this or we have been informed abouth this.
+	
+	Model is defined by it's Stability and it is provided by ROC.
+	
+	
+We USe Regulazation in Logistic Regression by on it's own.(default)
+
+LibLinear will only handle only Single Class in Logistic Regression
+
+Multiclass Classification Loss Function -- Cross Entropy ?
+
+SkLearn -->> Logistic Regression 
+		#multiclass case, the training algorithm uses the one-vs-rest (OvR) scheme
+			multi_class’ option is set to ‘ovr’, and uses the cross-entropy loss if the ‘multi_class’ option is set to ‘multinomial’. 
+			(Currently the ‘multinomial’ option is supported only by the ‘lbfgs’, ‘sag’, ‘saga’ and ‘newton-cg’ solvers.)
+		
+		#This class implements regularized logistic regression using the ‘liblinear’ library, ‘newton-cg’, ‘sag’, ‘saga’ and ‘lbfgs’ solvers.
+		Note that regularization is applied by default. It can handle both dense and sparse input. Use C-ordered arrays or CSR matrices containing 64-bit floats for optimal performance; any other input format will be converted (and copied).
+		
+		#The ‘newton-cg’, ‘sag’, and ‘lbfgs’ solvers support only L2 regularization with primal formulation, or no regularization. 
+		 The ‘liblinear’ solver supports both L1 and L2 regularization, with a dual formulation only for the L2 penalty. 
+		 The Elastic-Net regularization is only supported by the ‘saga’ solver.
+
+		#solver{‘newton-cg’, ‘lbfgs’, ‘liblinear’, ‘sag’, ‘saga’}, default=’lbfgs’
+		 Algorithm to use in the optimization problem. Default is ‘lbfgs’. 
+		 To choose a solver, you might want to consider the following aspects:
+		 For small datasets, ‘liblinear’ is a good choice, whereas ‘sag’ and ‘saga’ are faster for large ones;
+		 For multiclass problems, only ‘newton-cg’, ‘sag’, ‘saga’ and ‘lbfgs’ handle multinomial loss;
+		 ‘liblinear’ is limited to one-versus-rest schemes.
+	
+		#multi_class{‘auto’, ‘ovr’, ‘multinomial’}, default=’auto’
+		 If the option chosen is ‘ovr’, then a binary problem is fit for each label. 
+		 For ‘multinomial’ the loss minimised is the multinomial loss fit across the entire probability distribution, even when the data is binary. 
+		 ‘multinomial’ is unavailable when solver=’liblinear’. ‘auto’ selects ‘ovr’ if the data is binary,
+		 or if solver=’liblinear’, and otherwise selects ‘multinomial’.
+
+DECISION TREE
+
+Algorithms --- 3 main 
+
+Overfitting and Underfitting Issue in DT. -->>pruning and  pre - post pruning
+
+L1 & l2 Loss ?
+
+Ensemble Tech --- Boosting , bagging & Stacking
+
+Bootstrap Aggretion tech. & Pasting   -- bagging 
+
+Random Forest is one of the Algorithm for bagging classifier (Part of Ensemble--Bagging Process) .
+
+
+ 
+
