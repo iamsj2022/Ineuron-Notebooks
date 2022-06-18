@@ -1,0 +1,10 @@
+CREATE KEYSPACE ineruon
+WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 3};
+
+CREATE KEYSPACE test
+... WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'datacenter1' : 3 }
+... AND DURABLE_WRITES = false;
+
+DESCRIBE keyspaces;
+
+SELECT * FROM system_schema.keyspaces;
